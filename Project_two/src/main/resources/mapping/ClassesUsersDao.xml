@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.ClassesUsersDao">
+    <insert id="createInfo" parameterType="com.zy.final_project.entity.classes.ClassesUsers">
+        insert into classesusers(id,classId,userId,role,inClassTime)
+        values(#{id},#{classId},#{userId},#{role},#{inClassTime})
+    </insert>
+    <resultMap id="BaseResultMap" type="com.zy.final_project.entity.classes.ClassesUsers">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="classId" jdbcType="BIGINT" property="classId" />
+        <result column="userId" jdbcType="BIGINT" property="userId" />
+        <result column="role" jdbcType="INTEGER" property="role"/>
+        <result column="inClassTime" jdbcType="DATE" property="inClassTime"/>
+        <!--一对多，方式一-->
+        <collection property="users" ofType="com.zy.final_project.entity.Users" >
+            <id column="userId" jdbcType="BIGINT" property="userId" />
+            <result column="username" jdbcType="VARCHAR" property="username" />
+            <result column="gender" jdbcType="VARCHAR" property="gender" />
+            <result column="birth" jdbcType="DATE" property="birth" />
+            <result column="headPosition" jdbcType="VARCHAR" property="headPosition"/>
+        </collection>
+    </resultMap>
+    <select id="findClassInfo" resultMap="BaseResultMap">
+        select classesusers.id,classesusers.userId,role,inClassTime,username,gender,birth,headPosition
+        from classesusers,users
+        where classId = #{classId} and classesusers.userId =  users.userId
+        order by inClassTime
+        limit #{page},#{size}
+    </select>
+    <select id="checkMemberIdentity"  parameterType="java.lang.Long" resultType="com.zy.final_project.entity.classes.ClassesUsers">
+        select role from classesusers where userId = #{userId} and classId = #{classId}
+    </select>
+    <select id="countMemberClass"  parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(id) from classesusers where classId = #{classId}
+    </select>
+    <delete id="delClassMember" parameterType="java.lang.Long">
+        delete from classesusers where userId = #{userId} and classId = #{classId}
+    </delete>
+    <delete id="exitClass" parameterType="java.lang.Long">
+        delete from classesusers where userId = #{userId} and classId = #{classId}
+    </delete>
+    <select id="findUserInfoByClassId"  parameterType="java.lang.Long" resultType="com.zy.final_project.entity.Users">
+        select users.userId,username from classesusers,users
+        where classId = #{classId} and role=1 and classesusers.userId = users.userId
+    </select>
+    <select id="findUserIdByClassId"  parameterType="java.lang.Long" resultType="java.lang.Long">
+        select userId from classesusers where classId = #{classId}
+    </select>
+
+</mapper>

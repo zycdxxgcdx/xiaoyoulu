@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.DynamicLikesDao">
+    <insert id="saveDynamicLikes">
+        insert into dynamiclikes(userId,dynamicId,status)
+        values(#{userId},#{dynamicId},#{status})
+    </insert>
+    <select id="checkLikeIsExist" parameterType="com.zy.final_project.entity.dynamic.DynamicLikes" resultType="java.lang.Integer">
+        select id from dynamiclikes where userId=#{userId} and dynamicId=#{dynamicId}
+    </select>
+    <update id="updateDynamicLikes">
+        update dynamiclikes set status=#{status} where userId=#{userId} and dynamicId=#{dynamicId}
+    </update>
+
+    <insert id="saveDynamicLikeNums">
+        insert into dynamiclikenum(dynamicId,likenum)
+        values(#{dynamicId},#{likenum})
+    </insert>
+    <select id="checkLikeNumsIsExist" parameterType="com.zy.final_project.entity.dynamic.DynamicLikeNums" resultType="java.lang.Integer">
+        select id from dynamiclikenum where dynamicId=#{dynamicId}
+    </select>
+    <update id="updateDynamicLikeNums">
+        update dynamiclikenum set likenum=#{likenum} where dynamicId=#{dynamicId}
+    </update>
+</mapper>

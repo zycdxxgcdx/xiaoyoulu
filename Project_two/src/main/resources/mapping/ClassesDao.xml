@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.ClassesDao">
+    <select id="findAllSchool"  resultType="java.lang.String">
+        select schoolName from school
+        where province = #{province} and city = #{city}
+    </select>
+    <select id="selectSchoolId"  resultType="java.lang.Long">
+        select schoolId from school
+        where province = #{province} and city = #{city} and schoolName = #{schoolName}
+    </select>
+    <insert id="createClass" parameterType="com.zy.final_project.entity.classes.Classes">
+        insert into classes(classId,schoolId,subject,types,major,grade,className,headPosition)
+        values(#{classId},#{schoolId},#{subject},#{types},#{major},#{grade},#{className},#{headPosition})
+    </insert>
+    <select id="checkClassIsCreated"  parameterType="com.zy.final_project.entity.classes.Classes" resultType="java.lang.Long">
+        select classId from classes
+        where schoolId = #{schoolId} and subject = #{subject} and types = #{types}
+        and major = #{major} and grade = #{grade} and className = #{className}
+    </select>
+    <select id="findAllClasses"  resultType="com.zy.final_project.entity.classes.Classes">
+        select classId,schoolName,major,grade,className,classes.headPosition
+        from classes,school
+        where classes.schoolId = school.schoolId
+        limit #{page},#{size}
+    </select>
+    <select id="countAllClass" resultType="java.lang.Integer">
+        select count(classId) from classes
+    </select>
+    <select id="findInClasses"  resultType="com.zy.final_project.entity.classes.Classes">
+        select classes.classId,schoolName,major,grade,className,classes.headPosition
+        from classes,school,classesusers
+        where classes.schoolId = school.schoolId and classesusers.userId = #{userId}
+        and classes.classId = classesusers.classId
+        limit #{page},#{size}
+    </select>
+    <select id="countInClass" resultType="java.lang.Integer">
+        select count(classId) from classesusers where userId = #{userId}
+    </select>
+    <select id="searchClass"  resultType="com.zy.final_project.entity.classes.Classes">
+        select classes.classId,schoolName,major,grade,className,classes.headPosition
+        from classes,school
+        where classes.schoolId = school.schoolId
+        and  CONCAT(`schoolName`,`major`,`schoolName`,`grade`,`className`) like concat('%',#{name},'%')
+        limit #{page},#{size}
+    </select>
+    <select id="countsearchClass"  resultType="java.lang.Integer">
+        select count(classId)
+        from classes,school
+        where classes.schoolId = school.schoolId
+        and  CONCAT(`schoolName`,`major`,`schoolName`,`grade`,`className`) like concat('%',#{name},'%')
+    </select>
+    <select id="searchInClass"  resultType="com.zy.final_project.entity.classes.Classes">
+        select classes.classId,schoolName,major,grade,className,classes.headPosition
+        from classes,school
+        where classes.classId in(
+            select classesusers.classId from classes,classesusers
+            where classesusers.userId = #{userId}
+            and classes.classId =  classesusers.classId
+            group by classesusers.classId HAVING count(classesusers.classId)>0)
+        and classes.schoolId = school.schoolId
+        and CONCAT(`schoolName`,`major`,`schoolName`,`grade`,`className`) like concat('%',#{name},'%')
+        limit #{page},#{size}
+    </select>
+    <select id="countsearchInClass"  resultType="java.lang.Integer">
+        select count(classId)
+        from classes,school
+        where classes.classId in(
+            select classesusers.classId from classes,classesusers
+            where classesusers.userId = #{userId}
+            and classes.classId =  classesusers.classId
+            group by classesusers.classId HAVING count(classesusers.classId)>0)
+        and classes.schoolId = school.schoolId
+        and CONCAT(`schoolName`,`major`,`schoolName`,`grade`,`className`) like concat('%',#{name},'%')
+    </select>
+    <select id="findClassNameByClassId"  parameterType="java.lang.Long" resultType="com.zy.final_project.entity.classes.Classes">
+        select schoolName,major,grade,className from classes,school
+        where classes.classId = #{classId} and classes.schoolId = school.schoolId
+    </select>
+    <select id="findClassNameBySchoolId" resultType="com.zy.final_project.entity.classes.Classes">
+        select classId,schoolName,major,grade,className,classes.headPosition from classes,school
+        where classes.schoolId = #{schoolId} and classes.schoolId = school.schoolId
+        limit #{page},#{size}
+    </select>
+    <insert id="joinClass">
+        insert into classapply(userId,classId,isPass,passTime)
+        values(#{userId},#{classId},0,#{passTime})
+    </insert>
+    <select id="checkIsJoinClass" resultType="java.lang.Integer">
+        select isPass from classapply
+        where userId = #{userId} and classId = #{classId}
+    </select>
+    <update id="updateIsPass">
+        update classapply set isPass = 0,passTime=#{passTime}
+        where userId=#{userId} and classId=#{classId}
+    </update>
+    <select id="getAllClassNumber" resultType="java.lang.Integer">
+        select count(classId) from classes
+    </select>
+</mapper>

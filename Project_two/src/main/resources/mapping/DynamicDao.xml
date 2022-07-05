@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.DynamicDao">
+    <insert id="postDynamic">
+        insert into dynamic(dynamicId,userId,content,dynamic_time,submit_images)
+        values(#{dynamicId},#{userId},#{content},#{dynamic_time},#{submit_images})
+    </insert>
+    <select id="findDynamic" resultType="com.zy.final_project.entity.dynamic.Dynamic">
+        select dynamicId,content,dynamic_time,submit_images,username,headPosition,users.userId,forwardDynamicId from dynamic,users
+        where dynamic.userId = #{userId} and dynamic.userId = users.userId
+        union all
+        select dynamicId,content,dynamic_time,submit_images,username,headPosition,users.userId,forwardDynamicId from dynamic,users
+        where dynamic.userId in (select followid from follow where userid = #{userId})
+        and dynamic.userId = users.userId
+        order by dynamic_time desc
+        limit #{page},#{size}
+    </select>
+    <select id="findMyDynamic" resultType="com.zy.final_project.entity.dynamic.Dynamic">
+        select dynamicId,content,dynamic_time,submit_images,username,headPosition,users.userId from dynamic,users
+        where dynamic.userId = #{userId} and dynamic.userId = users.userId
+        order by dynamic_time desc
+        limit #{page},#{size}
+    </select>
+    <insert id="postDynamicReply">
+        insert into dynamicreply(dynamicId,content,userId,reply_time)
+        values(#{dynamicId},#{content},#{userId},#{reply_time})
+    </insert>
+    <select id="findDynamicComment" resultType="com.zy.final_project.entity.dynamic.DynamicComment">
+        select commentId,content,commentTime,username,headPosition,dynamiccomment.userId
+        from dynamiccomment,users
+        where dynamicId = #{dynamicId} and dynamiccomment.userId = users.userId
+        order by commentTime desc
+        limit 0,6
+    </select>
+    <select id="findDynamicCommentPage" resultType="com.zy.final_project.entity.dynamic.DynamicComment">
+        select commentId,content,commentTime,username,headPosition
+        from dynamiccomment,users
+        where dynamicId = #{dynamicId} and dynamiccomment.userId = users.userId
+        order by commentTime desc
+        limit #{page},#{size}
+    </select>
+    <select id="countReplyByDynamicId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(commentId) from dynamiccomment where dynamicId = #{dynamicId}
+    </select>
+    <select id="countForwardByDynamicId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+       select count(dynamicId) from dynamic where forwardDynamicId = #{dynamicId}
+    </select>
+    <select id="findDynamicByDynamicId" parameterType="java.lang.Long" resultType="com.zy.final_project.entity.dynamic.Dynamic">
+        select dynamicId,content,dynamic_time,submit_images,username,headPosition,dynamic.userId
+        from dynamic,users
+        where dynamicId = #{dynamicId} and dynamic.userId = users.userId;
+    </select>
+    <insert id="postDynamicComment">
+        insert into dynamiccomment(dynamicId,userId,content,commentTime)
+        values(#{dynamicId},#{userId},#{content},#{commentTime})
+    </insert>
+    <insert id="postDynamicCommentReply">
+        insert into dynamicreply(commentId,content,reply_time,fromuserId,isat,touserId)
+        values(#{commentId},#{content},#{reply_time},#{fromuserId},#{isat},#{touserId})
+    </insert>
+    <select id="findUserIdByCommentId" parameterType="java.lang.Integer" resultType="java.lang.Long">
+        select userId from dynamiccomment where commentId = #{commentId}
+    </select>
+    <select id="findDynamicReplyByCommentId" parameterType="java.lang.Integer" resultType="com.zy.final_project.entity.dynamic.DynamicReply">
+        select dynamicReplyId,commentId,content,reply_time,fromuserId,touserId,isat
+        from dynamicreply where commentId = #{commentId}
+        order by reply_time desc
+        limit 0,3
+    </select>
+    <select id="countReplyBycommentId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(dynamicReplyId) from dynamicreply where commentId = #{commentId}
+    </select>
+    <select id="findDynamicAllReplyByCommentId" parameterType="java.lang.Integer" resultType="com.zy.final_project.entity.dynamic.DynamicReply">
+        select dynamicReplyId,commentId,content,reply_time,fromuserId,touserId,isat
+        from dynamicreply where commentId = #{commentId}
+        order by reply_time desc
+        limit #{page},#{size}
+    </select>
+    <select id="rankCommentInDynamic" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(commentId) from dynamiccomment where dynamicId = #{dynamicId}
+    </select>
+    <insert id="postDynamicForward" parameterType="com.zy.final_project.entity.dynamic.Dynamic">
+        insert into dynamic(dynamicId,userId,content,dynamic_time,forwardDynamicId)
+        values(#{dynamicId},#{userId},#{content},#{dynamic_time},#{forwardDynamicId})
+    </insert>
+    <select id="getForwardDynamicId" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select forwardDynamicId from dynamic where dynamicId = #{dynamicId}
+    </select>
+    <select id="findDynamicForward" resultType="com.zy.final_project.entity.dynamic.Dynamic">
+        select dynamic.userId,username,headPosition,content,dynamic_time
+        from dynamic,users
+        where forwardDynamicId = #{dynamicId} and dynamic.userId = users.userId
+        order by dynamic_time desc
+        limit #{page},#{size}
+    </select>
+    <select id="getAllReplyNumber" resultType="java.lang.Integer">
+        select count(dynamicReplyId) from dynamicreply
+    </select>
+</mapper>

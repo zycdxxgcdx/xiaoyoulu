@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.PostDao">
+    <insert id="post" parameterType="PublicPost">
+        insert into publicpost(publicpostid,userId,title,content,postdate,views,submit_images,school)
+        values(#{publicpostid},#{userId},#{title},#{content},#{postdate},#{views},#{submit_images},#{school})
+    </insert>
+    <select id="getMySchool" parameterType="java.lang.Long" resultType="com.zy.final_project.entity.School">
+        select schoolName from school
+        where
+        schoolId in(
+            select schoolId from classes,classesusers
+            where classesusers.userId = #{userId}
+            and classes.classId =  classesusers.classId
+            group by schoolId HAVING count(schoolId)>0
+        )
+    </select>
+</mapper>

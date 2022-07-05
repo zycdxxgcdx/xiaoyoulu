@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.SocketListDao">
+    <select id="findSocketList" resultType="com.zy.final_project.entity.socket.SocketList">
+        select touserId,type,time,username,null as schoolName,null as major,null as grade,null as className,headPosition
+        from socketlist,users
+        where socketlist.fromuserId=#{userId} and socketlist.touserId = users.userId and type=0
+        UNION all
+		select touserId,type,time,null,schoolName,major,grade,className,classes.headPosition
+		from socketlist,classes,school
+		where socketlist.fromuserId=#{userId} and socketlist.touserId = classes.classId and type=1
+		and classes.schoolId = school.schoolId
+        order by time desc
+        limit #{page},#{size}
+    </select>
+    <update id="delListUser">
+        update socketlist set type = -1,time = #{time}
+        where fromuserId = #{fromUserId} and touserId = #{toUserId}
+    </update>
+    <select id="checkSocketListExist" resultType="java.lang.Integer">
+        select Id from socketlist where fromUserId=#{fromUserId} and touserId = #{toUserId}
+    </select>
+    <update id="updateSocketListState">
+        update socketlist set type = #{type},time = #{time}
+        where fromuserId = #{fromUserId} and touserId = #{toUserId}
+    </update>
+    <insert id="addSocketList">
+        insert into socketlist(fromuserId,touserId,type,time,notreadinfonum)
+        values(#{fromUserId},#{toUserId},#{type},#{time},0)
+    </insert>
+</mapper>

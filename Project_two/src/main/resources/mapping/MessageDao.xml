@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.MessageDao">
+    <select id="findPostInfo" resultType="com.zy.final_project.entity.message.MessageReply">
+        select publiccomment.userId,users.username,users.headPosition,commentContent as content,
+        commentTime as time,publicpost.content as toContent,publicpost.publicpostid
+        from publiccomment,publicpost,users
+        where publiccomment.publicpostid in (select publicpostid from publicpost where userId = #{userId})
+        and publiccomment.userId = users.userId and publiccomment.publicpostid = publicpost.publicpostid
+        order by time desc
+        limit #{page},#{size}
+    </select>
+    <select id="findDynamicInfo" resultType="com.zy.final_project.entity.message.MessageReply">
+        select dynamiccomment.userId,users.username,users.headPosition,dynamiccomment.content,
+        commentTime as time,dynamic.content as toContent,dynamic.dynamicId
+        from dynamic,dynamiccomment,users
+        where dynamiccomment.dynamicId in (select dynamicId from dynamic where userId = #{userId})
+        and dynamiccomment.userId = users.userId and dynamic.dynamicId = dynamiccomment.dynamicId
+        order by time desc
+        limit #{page},#{size}
+    </select>
+    <select id="findReplyInfo" resultType="com.zy.final_project.entity.message.MessageReply">
+        select dynamicreply.fromuserId as userId,users.username,users.headPosition,dynamicreply.content,
+        dynamicreply.reply_time as time,dynamiccomment.content as toContent,dynamiccomment.dynamicId,'' as publicpostid
+        from dynamicreply,dynamiccomment,users
+        where dynamiccomment.commentId in (select commentId from dynamicreply where touserId = #{userId})
+        and dynamicreply.fromuserId = users.userId and dynamicreply.commentId = dynamiccomment.commentId
+        union all
+        select publicreply.fromuserId,users.username,users.headPosition,publicreply.replycontent as content,
+        publicreply.replyTime as time,publiccomment.commentContent as toContent,'',publicreply.publicpostid
+        from publicreply,publiccomment,users
+        where publiccomment.commentId in (select commentId from publicreply where touserId = #{userId})
+        and publicreply.fromuserId = users.userId and publicreply.commentId = publiccomment.commentId
+        order by time desc
+        limit #{page},#{size}
+    </select>
+    <select id="findClassApply" resultType="com.zy.final_project.entity.message.MessageClass">
+        select classapply.Id,classapply.userId,users.username,users.headPosition,isPass,passTime,classapply.classId,
+        schoolName,major,grade,className
+        from classapply,classes,users,school
+        where classapply.classId in (select classId from classesusers where userId = #{userId} and role = 1)
+        and classes.schoolId = school.schoolId and classapply.classId = classes.classId
+        and classapply.userId = users.userId
+        order by passTime desc
+        limit #{page},#{size}
+    </select>
+    <update id="classApplyAgree">
+        update classapply set isPass=1,passTime=#{passTime} where Id = #{Id}
+    </update>
+    <select id="findMessageClassById" resultType="com.zy.final_project.entity.message.MessageClass">
+        select Id,userId,classId,isPass,passTime from classapply where Id = #{Id}
+    </select>
+    <update id="classApplyReject">
+        update classapply set isPass=-1,passTime=#{passTime} where Id = #{Id}
+    </update>
+    <select id="findClassNotify" resultType="com.zy.final_project.entity.message.MessageExitClass">
+        select classexit.classId,classes.headPosition,schoolName,major,grade,className,exitType,null as isPass,exitTime as time
+        from classes,classexit,school
+        where classexit.classId in (select classId from classexit where userId = #{userId})
+        and
+        classexit.classId = classes.classId and classes.schoolId = school.schoolId and userId = #{userId}
+        union all
+        select classapply.classId,classes.headPosition,schoolName,major,grade,className,null as exitType ,isPass,passTime as time
+        from classes,school,classapply
+        where classapply.classId in (select classId from classapply where userId = #{userId} and (isPass=-1 or isPass=1))
+        and
+        classapply.classId = classes.classId and classes.schoolId = school.schoolId and userId = #{userId}
+        order by time desc
+        limit #{page},#{size}
+    </select>
+    <select id="findLikeInfo" resultType="com.zy.final_project.entity.message.MessageLike">
+        select dynamicId,content
+        from dynamic
+        where dynamicId in
+        <foreach item="item" index="index" collection="dynamicLikes"
+                 open="(" separator="," close=")">
+            #{item.dynamicId}
+        </foreach>
+        and userId = #{userId}
+        limit #{page},#{size}
+    </select>
+</mapper>

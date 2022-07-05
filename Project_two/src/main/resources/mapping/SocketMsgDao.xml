@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.SocketMsgDao">
+    <select id="checkTimeDifference" resultType="java.time.LocalDateTime">
+        select time from socketprivatechat where fromUser = #{userId}
+        order by time desc limit 0,1
+    </select>
+    <select id="checkGroupTimeDifference" resultType="java.time.LocalDateTime">
+        select time from socketgroupchat where fromUser = #{userId}
+        order by time desc limit 0,1
+    </select>
+    <insert id="addPrivateMsg" parameterType="com.zy.final_project.entity.socket.SocketMsg">
+        insert into socketprivatechat(fromUser,toUser,time,content,islast)
+        values(#{fromUser},#{toUser},#{time},#{content},#{islast})
+    </insert>
+    <select id="selectLastId" resultType="java.lang.Integer">
+        SELECT Id from socketprivatechat where fromUser=#{userId} and toUser=#{toId}
+        order by time desc
+        limit 0,1
+    </select>
+    <update id="updateIsLast">
+        update socketprivatechat set islast = 1 where Id=#{Id}
+    </update>
+    <select id="findSocketMsg" resultType="com.zy.final_project.entity.socket.SocketMsg">
+        select a.Id,fromUser,toUser,time,content,islast,headPosition,username
+        from (select socketprivatechat.Id,fromUser,toUser,time,content,islast  from socketprivatechat
+        where
+        (fromUser=#{fromUserId} and toUser=#{toUserId}) or (fromUser=#{toUserId} and toUser=#{fromUserId})
+        order by time desc limit #{page},#{size}) a,users
+        where a.fromUser = users.userId
+        order by time
+    </select>
+    <insert id="addGroupMsg">
+        insert into socketgroupchat(fromUser,toUser,time,content,islast)
+        values(#{fromUser},#{toUser},#{time},#{content},#{islast})
+    </insert>
+    <select id="findSocketGroupMsg" resultType="com.zy.final_project.entity.socket.SocketMsg">
+        select a.Id,fromUser,toUser,time,content,islast,headPosition,username
+        from (select socketgroupchat.Id,fromUser,toUser,time,content,islast  from socketgroupchat
+        where toUser=#{toUserId} order by time desc limit #{page},#{size}) a,users
+        where a.fromUser = users.userId
+        order by time
+    </select>
+</mapper>

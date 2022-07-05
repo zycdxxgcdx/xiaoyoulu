@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.UsersDao">
+<select id="getUserProfile" parameterType="java.lang.Long" resultType="com.zy.final_project.entity.Users">
+        select username,gender,birth,headPosition,userId from users where userId = #{userId}
+    </select>
+<insert id="createUser">
+        insert into users(userId,username) values(#{userId},#{username})
+    </insert>
+<select id="findUsernameById" parameterType="java.lang.Long" resultType="java.lang.String">
+        select username from users where userId = #{userId}
+    </select>
+<update id="updateUser" parameterType="com.zy.final_project.entity.Users">
+      update users set username = #{username},gender = #{gender},birth = #{birth},headPosition = #{headPosition}
+      where userId = #{userId}
+    </update>
+<select id="userInfo" parameterType="java.lang.Long" resultType="com.zy.final_project.entity.Users">
+        select username,headPosition from users where userId = #{userId}
+    </select>
+<select id="findAll" resultType="PublicPost">
+        select
+	        publicpostid,title,postdate,views
+        from
+	        publicpost
+	    where userId = #{userId}
+        order by postdate desc
+        limit #{page},#{size}
+    </select>
+<select id="findUsersByUserId" parameterType="java.lang.Long" resultType="com.zy.final_project.entity.Users">
+        select username,gender,birth,headPosition from users where userId = #{userId}
+    </select>
+<insert id="follow" parameterType="java.lang.Long">
+        insert into follow(userid,followid) values(#{userId},#{followUserId})
+    </insert>
+<delete id="cancelFollow">
+        delete from follow where userid=#{userId} and followid=#{followUserId}
+    </delete>
+<select id="isFollow" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select Id from follow where userid=#{userId} and followid=#{followUserId}
+    </select>
+<select id="findFollowNums" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(Id) from follow where userid=#{userId}
+    </select>
+<select id="findFansNums" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(Id) from follow where followid=#{userId}
+    </select>
+<select id="findFollows" resultType="com.zy.final_project.entity.Users">
+        select users.userId,username,headPosition
+        from follow,users
+        where follow.userid = #{userId} and follow.followid = users.userId
+        limit #{page},#{size}
+    </select>
+<select id="findFans" resultType="com.zy.final_project.entity.Users">
+        select users.userId,username,headPosition
+        from follow,users
+        where follow.followid = #{userId} and follow.userid = users.userId
+        limit #{page},#{size}
+    </select>
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.final_project.dao.PublicPostDao">
+    <select id="findAll" parameterType="java.lang.Integer" resultType="PublicPost">
+        select
+	        publicpostid,title,username,postdate,headPosition,school,users.userId
+        from
+	        publicpost,users
+        where publicpost.userId = users.userId
+        order by postdate desc
+        limit #{page},#{size}
+    </select>
+    <select id="findAllPages" resultType="java.lang.Integer">
+        select count(publicpostid) from publicpost
+    </select>
+    <select id="findPost" parameterType="java.lang.Long" resultType="PublicPost">
+        select
+	        title,username,headPosition,school,content,postdate,submit_images,users.userId
+        from
+	        publicpost,users
+        where publicpost.userId = users.userId and publicpostid = #{publicpostid}
+    </select>
+    <select id="findSearchPost" resultType="com.zy.final_project.entity.publicpost.PublicPost">
+        select
+	        publicpostid,title,username,postdate,headPosition,school,users.userId
+        from
+	        publicpost,users
+        where publicpost.userId = users.userId
+        and title like concat('%',#{input},'%')
+        order by postdate desc
+        limit #{page},#{size}
+    </select>
+    <select id="countSearchPost" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select
+	        count(publicpostid)
+        from
+	        publicpost,users
+        where publicpost.userId = users.userId
+        and title like concat('%',#{input},'%')
+    </select>
+    <update id="addPostViewInMysql">
+        update publicpost set views=#{view} where publicpostid = #{publicpostid}
+    </update>
+    <insert id="publicpostComment" parameterType="PublicPostComment">
+        insert into publiccomment(publicpostid,commentContent,userId,commentTime) values(#{publicpostid},#{commentContent},#{userId},#{commentTime})
+    </insert>
+    <select id="findpublicostComment" resultType="Emoji">
+        select commentId,commentContent,commentTime,username,publiccomment.userId,headPosition
+        from publiccomment,users where publicpostid = #{publicpostid}
+        and publiccomment.userId = users.userId
+        order by commentTime desc
+        limit #{page},#{size}
+    </select>
+    <select id="countPublicostComment" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(publicpostid) as num from publiccomment where publicpostid = #{publicpostid}
+    </select>
+    <insert id="reply" parameterType="Reply">
+        insert into publicreply(commentId,fromuserId,touserId,replycontent,isat,publicpostid,replyTime) values(#{commentId},#{fromuserId},#{touserId},#{replycontent},#{isat},#{publicpostid},#{replyTime})
+    </insert>
+    <select id="findreply" resultType="Reply">
+        select commentId,fromuserId,touserId,replycontent,isat,replyTime,headPosition from publicreply,users
+        where commentId = #{commentId} and publicreply.fromuserId = users.userId
+        order by replyTime desc
+        limit 0,3
+    </select>
+    <select id="countReply" resultType="java.lang.Integer">
+        select count(replyId) from publicreply where commentId = #{commentId}
+    </select>
+    <select id="findReplyByCommentId" resultType="Reply">
+        select commentId,fromuserId,touserId,replycontent,isat,replyTime,headPosition from publicreply,users
+        where commentId = #{commentId} and publicreply.fromuserId = users.userId
+        order by replyTime desc
+        limit #{page},#{size}
+    </select>
+    <select id="getAllPostNumber" resultType="java.lang.Integer">
+        select count(publicpostid) from publicpost
+    </select>
+    <select id="getAllReplyNumber" resultType="java.lang.Integer">
+        select count(replyId) from publicreply
+    </select>
+</mapper>
