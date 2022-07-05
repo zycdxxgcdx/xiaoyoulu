@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="tuichu1" unicode="&#59264;" d="M512 736v-64H288c-16.416 0-32.224-15.904-32-32v-512c0-16.416 15.936-32.224 32-32h224v-64H288c-52.096 0-96 38.944-96 96V640c0 51.136 45.76 96 96 96h224z m164.16-198.048L832 383.936l-155.84-154.016-44.48 44 79.808 78.88h-263.552v62.272h263.552l-79.808 78.88 44.48 44z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>
